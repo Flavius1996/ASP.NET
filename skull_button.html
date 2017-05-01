@@ -1,0 +1,116 @@
+<html>
+  <head>
+  <title>Button</title>
+      <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 100%;
+        text-align:center;
+        max-width: 300px;
+        width: 250px;
+        height: 300px;
+        background: black;
+      }
+      
+      div.butn{
+        background-image:url("skull_red.png");
+        width:256px;
+        height:256px;
+        cursor: pointer;
+
+        /* Animation change color*/
+        /*animation: changecolor 1.5s infinite alternate;*/
+        animation-name: changecolor;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+      }
+
+     div.butn:hover{
+        cursor: pointer;
+      }
+
+      div.butn:active{
+        /*background-image:url("skull_blue.png");
+        width:256px;
+        height:256px;*/
+            
+        transition: 0.001s;
+        transform: scale(0.9,0.9);
+      }
+
+    @keyframes changecolor {
+    from {background-image: url("skull_red.png");}
+    to   {background-image: url("skull_green.png");}
+    }
+
+
+    @-webkit-keyframes rotation {
+    from {-webkit-transform: rotate(0deg);}
+    to   {-webkit-transform: rotate(359deg);}
+      }
+     
+    @-webkit-keyframes scale {
+    from {-webkit-transform: scale(1);}
+    to   {-webkit-transform: scale(0.7);}
+    }
+
+    @-webkit-keyframes changecolor_chrome {
+    from {background-image: url("skull_red.png");}
+    to   {background-image: url("skull_green.png");}
+    }
+
+
+    /* FOR MOZILAR BROWSER - It don't support background-image animation*/
+    .test
+    {
+        background-image: url("skull_red.png");
+        width: 256px;
+        height: 256px;
+        position: relative;
+    }
+
+    .test:before, .test:after {
+        content: "";
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        opacity: 1;
+    }
+    .test:before {
+        background-image: url("skull_red.png");
+        z-index: 1;
+        transition: opacity 1s;
+    }
+
+    .test:after {
+        background-image: url("skull_green.png");
+    }
+
+    .test:hover:before {
+        opacity: 0;
+        cursor: pointer;
+
+    }
+
+      .test:active{
+        /*background-image:url("skull_blue.png");
+        width:256px;
+        height:256px;*/
+            
+        transition: 0.001s;
+        transform: scale(0.9,0.9);
+      }
+
+      </style>
+  </head>
+  <body>
+
+    <div class="butn"></div>    <!-- display a object class butn -->
+
+    <div class="test"></div>    <!-- display a object class butn -->
+
+  </body>
+</html>
