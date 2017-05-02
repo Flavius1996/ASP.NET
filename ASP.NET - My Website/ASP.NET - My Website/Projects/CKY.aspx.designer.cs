@@ -13,6 +13,24 @@ namespace ASP.NET___My_Website.Projects {
     public partial class CKY {
         
         /// <summary>
+        /// btnDefaulCNF control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDefaulCNF;
+        
+        /// <summary>
+        /// CNF_Text control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea CNF_Text;
+        
+        /// <summary>
         /// Table1 control.
         /// </summary>
         /// <remarks>

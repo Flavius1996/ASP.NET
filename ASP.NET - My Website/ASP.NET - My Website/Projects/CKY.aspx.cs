@@ -9,7 +9,6 @@ namespace ASP.NET___My_Website.Projects
 {
     public partial class CKY : System.Web.UI.Page
     {
-        public enum MessageType { Success, Error, Info, Warning };
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -19,6 +18,8 @@ namespace ASP.NET___My_Website.Projects
         }
         protected void btnMain_Click(object sender, EventArgs e)
         {
+
+
             TableRow tRow = new TableRow();
 
             TableCell tCell1 = new TableCell();
@@ -49,7 +50,13 @@ namespace ASP.NET___My_Website.Projects
         {
             var msg = "<strong>Fail!</strong> Error Reading Data";
             Page.ClientScript.RegisterStartupScript(this.GetType(), "alert", "ShowDangerAlert('" + msg + "')", true);
+        }
 
+        protected void btnDefaulCNF_Click(object sender, EventArgs e)
+        {
+            var fileContents = System.IO.File.ReadAllText(Server.MapPath(@"./CKY_nlp/Data/CNF_Rules.txt"));
+
+            CNF_Text.Value = fileContents;
         }
     }
 }
