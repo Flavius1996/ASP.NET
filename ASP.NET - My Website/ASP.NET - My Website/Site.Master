@@ -14,6 +14,92 @@
     <webopt:bundlereference runat="server" path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
+    <%--                   Bootstrap Alert                  --%>
+    <%--<style type="text/css">
+        .messagealert {
+            width: 100%;
+            position: fixed;
+             top:0px;
+            z-index: 100000;
+            padding: 0;
+            font-size: 15px;
+        }
+    </style>
+    <script type="text/javascript">
+        function ShowMessage(message, messagetype) {
+            var cssclass;
+            switch (messagetype) {
+                case 'Success':
+                    cssclass = 'alert-success'
+                    break;
+                case 'Error':
+                    cssclass = 'alert-danger'
+                    break;
+                case 'Warning':
+                    cssclass = 'alert-warning'
+                    break;
+                default:
+                    cssclass = 'alert-info'
+            }
+            $('#<%=ButtonLogin.ClientID %>').append('<div id="alert_div" style="margin: 0 0.5%; -webkit-box-shadow: 3px 4px 6px #999;" class="alert fade in ' + cssclass + '"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>' + messagetype + '!</strong> <span>' + message + '</span></div>');
+        }
+    </script>--%>
+
+    <%--     <style type="text/css">
+            .messagealert {
+                width: 100%;
+                position: fixed;
+                 top:0px;
+                z-index: 100000;
+                padding: 0;
+                font-size: 15px;
+            }
+        </style>
+        <script type="text/javascript">
+            function ShowMessage(message, messagetype) {
+                var cssclass;
+                switch (messagetype) {
+                    case 'Success':
+                        cssclass = 'alert-success'
+                        break;
+                    case 'Error':
+                        cssclass = 'alert-danger'
+                        break;
+                    case 'Warning':
+                        cssclass = 'alert-warning'
+                        break;
+                    default:
+                        cssclass = 'alert-info'
+                }
+                $('#alert_container').append('<div id="alert_div" style="margin: 0 0.5%; -webkit-box-shadow: 3px 4px 6px #999;" class="alert fade in ' + cssclass + '"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>' + messagetype + '!</strong> <span>' + message + '</span></div>');
+            }
+        </script>
+
+        <div class="MessagePanelDiv">
+        <asp:Panel ID="Message" runat="server" Visible="False">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <asp:Label ID="labelMessage" runat="server" />
+        </asp:Panel>
+    </div>--%>
+    <script type="text/javascript">
+        function HideAllAlerts()
+        { 
+            $('.alert-success').hide(); 
+            $('.alert-danger').hide(); 
+        };
+        function ShowSuccessAlert(message)
+        {
+            $('.alert-success').show();
+            $('.alert-success').html(message);
+            $('.alert-danger').hide();
+        };
+        function ShowDangerAlert(message)
+        {
+            $('.alert-danger').show();
+            $('.alert-danger').html(message);
+            $('.alert-success').hide();
+        };
+    </script>
 </head>
 <body>
     <form runat="server">
@@ -51,8 +137,15 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li><a runat="server" href="~/">Home</a></li>
+                        <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a href="./Projects/CKY.aspx">CKY</a></li>
+                        </ul>
+                        </li>
                         <li><a runat="server" href="~/About">About</a></li>
                         <li><a runat="server" href="~/Contact">Contact</a></li>
+                        
                     </ul>
                     <asp:LoginView runat="server" ViewStateMode="Disabled">
                         <AnonymousTemplate>
