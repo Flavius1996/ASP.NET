@@ -13,6 +13,15 @@ namespace ASP.NET___My_Website.Projects {
     public partial class CKY {
         
         /// <summary>
+        /// MainUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel MainUpdatePanel;
+        
+        /// <summary>
         /// btnDefaulCNF control.
         /// </summary>
         /// <remarks>
@@ -31,22 +40,31 @@ namespace ASP.NET___My_Website.Projects {
         protected global::System.Web.UI.HtmlControls.HtmlTextArea CNF_Text;
         
         /// <summary>
-        /// Table1 control.
+        /// Sentence_Text control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table Table1;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText Sentence_Text;
         
         /// <summary>
-        /// Table2 control.
+        /// CKY_Table control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table Table2;
+        protected global::System.Web.UI.WebControls.Table CKY_Table;
+        
+        /// <summary>
+        /// CNF_Table control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Table CNF_Table;
         
         /// <summary>
         /// btnPrev control.
@@ -74,5 +92,23 @@ namespace ASP.NET___My_Website.Projects {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnNext;
+        
+        /// <summary>
+        /// lblHelloWorld control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHelloWorld;
+        
+        /// <summary>
+        /// btnHelloWorld control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnHelloWorld;
     }
 }

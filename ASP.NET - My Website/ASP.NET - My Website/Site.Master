@@ -41,6 +41,11 @@
             //$('.alert-success').hide();
         };
     </script>
+
+    <%--<script type="text/javascript">
+        window.scrollTo = function() { }
+    </script>--%>
+
 </head>
 <body>
     <form runat="server">
