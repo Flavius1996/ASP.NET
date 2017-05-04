@@ -37,14 +37,14 @@
       </div>
         <div class="panel-body">
           <div class="form-group">
-            <asp:Button id="btnDefaulCNF" runat="server" Cssclass="btn btn-link" OnClick="btnDefaulCNF_Click" Text="Default"  ToolTip="Default Sample of CNF Rules" Height="30px" style="text-decoration: underline" />
+            <asp:Button id="btnDefaulCNF" runat="server" Cssclass="btn btn-link" OnClick="btnDefaulCNF_Click" Text="Sample"  ToolTip="Default Sample of CNF Rules" Height="30px" style="text-decoration: underline" />
             <textarea  id="CNF_Text"  class="form-control" rows="7" runat="server" cols="20" name="S1" placeholder="Input CNF Rule (each rule in one line)"></textarea>
             </div>
         </div>
     </div>
 
     <div class="panel panel-primary">
-      <div class="panel-heading"><strong>Step 2:</strong> Input a Sentence</div>
+      <div class="panel-heading"><strong>Step 2:</strong> Input the Sentence</div>
       <div class="panel-body">
           <div class="input-group">
               <span class="input-group-addon" id="basic-addon1">Sentence</span>
@@ -58,7 +58,11 @@
             <div class="panel panel-primary">
               <div class="panel-heading">CKY Table</div>
               <div class="panel-body">
-                  <asp:Table ID="CKY_Table" runat="server" Height="100%" Width="100%" BorderStyle="Double" GridLines="Both"/>
+                  <asp:GridView ID="CKY_Grid" runat="server" Height="100%" Width="100%" AutoGenerateColumns = "False" HorizontalAlign="Center" HeaderStyle-VerticalAlign="Middle" OnDataBound="Grid_DataBound">
+                      <HeaderStyle VerticalAlign="Middle" HorizontalAlign="Center" />
+                      <RowStyle HorizontalAlign="Center" VerticalAlign="Middle" />
+                  </asp:GridView>
+
               </div>
             </div>
         </div>
@@ -66,7 +70,8 @@
             <div class="panel panel-primary">
               <div class="panel-heading">CNF Rules</div>
               <div class="panel-body">
-                  <asp:Table ID="CNF_Table" runat="server" Height="100%" Width="100%" GridLines="Both" style="padding-left:110px;" Font-Names="Tahoma" Font-Size="Medium" Font-Underline="False"/>
+                  <asp:GridView ID="CNF_Grid" runat="server" Height="100%" Width="100%" AutoGenerateColumns = "False">
+                  </asp:GridView>
               </div>
             </div>
         </div>
@@ -78,15 +83,13 @@
     <div class="alert alert-warning" role="alert" hidden="hidden" >Warning</div>
 
     <div style="text-align: center">
-            <asp:Button ID="btnPrev" runat="server" class="btn btn-primary btn-lg" OnClick="btnPrev_Click" Text="<<< Prev" ToolTip="Prev Step" />
-            <asp:Button ID="btnMain" runat="server" class="btn btn-success btn-lg" OnClick="btnMain_Click" Text="Start" ToolTip="Start CKY parsing" Width="132px" />
-            <asp:Button ID="btnNext" runat="server" class="btn btn-primary btn-lg" OnClick="btnNext_Click" Text="Next >>>" ToolTip="Next Step" />
+            <asp:Button ID="btnPrev" runat="server" Cssclass="btn btn-primary btn-lg" OnClick="btnPrev_Click" Text="<<< Prev" ToolTip="Prev Step" Enabled="False" />
+            <asp:Button ID="btnMain" runat="server" Cssclass="btn btn-success btn-lg" OnClick="btnMain_Click" Text="Start" ToolTip="Start CKY parsing" Width="132px" />
+            <asp:Button ID="btnNext" runat="server" Cssclass="btn btn-primary btn-lg" OnClick="btnNext_Click" Text="Next >>>" ToolTip="Next Step" Enabled="False" />
 
     </div>
 
-            <asp:Label runat="server" ID="lblHelloWorld" Text="Click the button!" />
-            <br /><br />
-            <asp:Button runat="server" ID="btnHelloWorld" OnClick="btnHelloWorld_Click" Text="Update label!" />
+         
         </ContentTemplate>
     </asp:UpdatePanel>
 </asp:Content>

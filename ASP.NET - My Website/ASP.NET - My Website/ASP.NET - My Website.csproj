@@ -406,6 +406,7 @@
       <DependentUpon>CKY.aspx</DependentUpon>
     </Compile>
     <Compile Include="Projects\CKY_nlp\CKY_Global.cs" />
+    <Compile Include="Projects\CKY_nlp\CKY_TableCell.cs" />
     <Compile Include="Projects\CKY_nlp\CNF_Rule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Site.Master.cs">

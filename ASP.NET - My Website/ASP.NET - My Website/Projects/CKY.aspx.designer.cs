@@ -49,22 +49,22 @@ namespace ASP.NET___My_Website.Projects {
         protected global::System.Web.UI.HtmlControls.HtmlInputText Sentence_Text;
         
         /// <summary>
-        /// CKY_Table control.
+        /// CKY_Grid control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table CKY_Table;
+        protected global::System.Web.UI.WebControls.GridView CKY_Grid;
         
         /// <summary>
-        /// CNF_Table control.
+        /// CNF_Grid control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table CNF_Table;
+        protected global::System.Web.UI.WebControls.GridView CNF_Grid;
         
         /// <summary>
         /// btnPrev control.
@@ -92,23 +92,5 @@ namespace ASP.NET___My_Website.Projects {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnNext;
-        
-        /// <summary>
-        /// lblHelloWorld control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblHelloWorld;
-        
-        /// <summary>
-        /// btnHelloWorld control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnHelloWorld;
     }
 }
