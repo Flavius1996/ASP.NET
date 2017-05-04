@@ -421,6 +421,7 @@ namespace ASP.NET___My_Website.Projects
             int id_rule;
             string word;
             CKY_TableCell[,] cky_tablecells = CKY_TABLECELLS;
+            List<ProcessChain> PC = PROCESSCHAIN;
             // First cell
             if ((int) CKY_i == 0 && (int) CKY_j == 0 && (int) CKY_k == 0)    
             {
@@ -437,6 +438,10 @@ namespace ASP.NET___My_Website.Projects
 
                 ChangeColor(0, -1, 1, id_rule - 1);
 
+                // ProcessChain for Prev
+                //ProcessChain prChain = new ProcessChain(CKY_k - 1, -1, CKY_k, id_rule - 1, true);
+                PC.Add(new ProcessChain(CKY_i, CKY_j, CKY_k, id_rule - 1, true));
+                PROCESSCHAIN = PC;
                 return;
             }
 
@@ -446,7 +451,6 @@ namespace ASP.NET___My_Website.Projects
             // TableCell (i, k) = (i, j) + (j, k)  
             CKY_TableCell CurTC;
             CKY_TableCell OppositeTC;
-            int check;
 
             // End of k col => Next k
             if (i <= 0 && j >= k)
@@ -465,8 +469,10 @@ namespace ASP.NET___My_Website.Projects
 
                 CKY_TABLECELLS = cky_tablecells;
 
-                //List<ProcessChain> PC = PROCESSCHAIN;
-                //PC.Add
+                // Processchain for Prev()
+                PC.Add(new ProcessChain(CKY_i, CKY_j, CKY_k, id_rule - 1, true));
+                PROCESSCHAIN = PC;
+
                 if (fskip)
                     Next(fskip);
                 else
@@ -486,17 +492,20 @@ namespace ASP.NET___My_Website.Projects
                 {
                     CurTC = cky_tablecells[x, y];
                     OppositeTC = cky_tablecells[y, k];
-                    check = CKY_TableCell.CheckMerge(CurTC, OppositeTC, CNF_RULES);
-                    if (check == -1)
+                    id_rule = CKY_TableCell.CheckMerge(CurTC, OppositeTC, CNF_RULES);
+                    if (id_rule == -1)
                         continue;
                     else
                     {
-                        cky_tablecells[x, k].Set(CNF_RULES[check - 1].Left, false, x, y, y, k);
+                        cky_tablecells[x, k].Set(CNF_RULES[id_rule - 1].Left, false, x, y, y, k);
 
                         s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", cky_tablecells[x, k].Tag, x, y, y, k);
                         SetDataTable(x, k, s);
 
-                        ChangeColor(x, y, k, check - 1);
+                        ChangeColor(x, y, k, id_rule - 1);
+
+                        PC.Add(new ProcessChain(x, y, k, id_rule - 1, false));
+                        PROCESSCHAIN = PC;
 
                         CKY_TABLECELLS = cky_tablecells;
                         if (x == 0 && k == N_Word)
@@ -555,129 +564,61 @@ namespace ASP.NET___My_Website.Projects
             ChangeColor((int) CKY_k - 1, -1, (int) CKY_k, id_rule - 1);
 
             CKY_TABLECELLS = cky_tablecells;
+
+            // Processchain for Prev()
+            PC.Add(new ProcessChain(CKY_i, CKY_j, CKY_k, id_rule - 1, true));
+            PROCESSCHAIN = PC;
+
             if (fskip == true)
                 Next(fskip);
         }
 
         protected void Prev(bool fskip = false)
         {
-            string s;
-            int id_rule;
-            string word;
+            List<ProcessChain> PC = PROCESSCHAIN;
             CKY_TableCell[,] cky_tablecells = CKY_TABLECELLS;
-
-            int i = (int) CKY_i;
-            int j = (int) CKY_j - 1;       // Get next j
-            int k = (int) CKY_k;
-            // TableCell (i, k) = (i, j) + (j, k)  
-            CKY_TableCell CurTC;
-            CKY_TableCell OppositeTC;
-            int check;
-
-            // End of k col => Next k
-            if (i >= CKY_k - 2 && j <= i)
+            int prevProcess = PC.Count - 2;
+            int curProcess = PC.Count - 1;
+            if (PC.Count >= 2)
             {
-                CKY_k = (int)CKY_k - 1;
-                CKY_i = (int)CKY_k - 2;
-                CKY_j = (int)CKY_k - 2;
-
-                word = SENTENCE_WORDS[(int)CKY_k - 1];
-                cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
-
-                s = String.Format("<strong>{0}</strong>", cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag);
-                SetDataTable((int)CKY_k - 1, (int)CKY_k, s);
-
-                ChangeColor((int)CKY_k - 1, -1, (int)CKY_k, id_rule - 1);
-
-                CKY_TABLECELLS = cky_tablecells;
-
-                return;
-            }
-            if (FinalCell == true)
-                return;
-            if (j == k)
-            {
-                j = i;
-                i = i - 1;
-            }
-            int x, y;
-            for (x = i; x >= 0; x--)
-            {
-                for (y = j; y < k; y++)
+                if (PC[curProcess].fTerminal == true)
                 {
-                    CurTC = cky_tablecells[x, y];
-                    OppositeTC = cky_tablecells[y, k];
-                    check = CKY_TableCell.CheckMerge(CurTC, OppositeTC, CNF_RULES);
-                    if (check == -1)
-                        continue;
+                    // Reset CurrentData
+                    SetDataTable(PC[curProcess].k - 1, PC[curProcess].k, "");
+                    cky_tablecells[PC[curProcess].k - 1, PC[curProcess].k].Tag = "";
+
+                    // Change Color PrevProcess
+                    if (PC[prevProcess].fTerminal == true)
+                        ChangeColor(PC[prevProcess].k - 1, -1, PC[prevProcess].k, PC[prevProcess].id_rule);
                     else
-                    {
-                        cky_tablecells[x, k].Set(CNF_RULES[check - 1].Left, false, x, y, y, k);
-
-                        s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", cky_tablecells[x, k].Tag, x, y, y, k);
-                        SetDataTable(x, k, s);
-
-                        ChangeColor(x, y, k, check - 1);
-
-                        CKY_TABLECELLS = cky_tablecells;
-                        if (x == 0 && k == N_Word)
-                        {
-                            FinalCell = true;
-                            btnMain_State = "Reset";
-                            btnMain.Text = "Reset";
-                            btnNext.Enabled = false;
-                            CKY_i = x;
-                            CKY_j = y;
-                            CKY_k = k;
-                            return;
-                        }
-                        if (fskip == false)
-                        {
-                            CKY_i = x;
-                            CKY_j = y;
-                            CKY_k = k;
-                            return;
-                        }
-                        else
-                        {
-                            //RestoreColor(x, y, k, check - 1);
-                            CKY_i = x;
-                            CKY_j = y;
-                            CKY_k = k;
-                            Next(fskip);
-                            if (FinalCell == true)
-                                return;
-                        }
-                    }
+                        ChangeColor(PC[prevProcess].i, PC[prevProcess].j, PC[prevProcess].k, PC[prevProcess].id_rule);
                 }
-                if (y == k)
-                    j = i;
+                else
+                {
+                    // Reset CurrentData
+                    SetDataTable(PC[curProcess].i, PC[curProcess].k, "");
+                    cky_tablecells[PC[curProcess].i, PC[curProcess].k].Tag = "";
 
+                    // Change Color PrevProcess
+                    if (PC[prevProcess].fTerminal == true)
+                        ChangeColor(PC[prevProcess].k - 1, -1, PC[prevProcess].k, PC[prevProcess].id_rule);
+                    else
+                        ChangeColor(PC[prevProcess].i, PC[prevProcess].j, PC[prevProcess].k, PC[prevProcess].id_rule);
+                }
+
+                CKY_i = PC[prevProcess].i;
+                CKY_j = PC[prevProcess].j;
+                CKY_k = PC[prevProcess].k;
+
+                // Remove CurProcess
+                PC.RemoveAt(curProcess);
+
+                PROCESSCHAIN = PC;
             }
-
-            CKY_k = (int)CKY_k + 1;
-            CKY_i = (int)CKY_k - 2;
-            CKY_j = (int)CKY_k - 2;
-            if ((int)CKY_k > N_Word)
+            if (PC.Count < 2)
             {
-                FinalCell = true;
-                btnMain_State = "Reset";
-                btnMain.Text = "Reset";
-                btnNext.Enabled = false;
-                this.BindGrid();
-                return;
+                btnPrev.Enabled = false;
             }
-            word = SENTENCE_WORDS[(int)CKY_k - 1];
-            cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
-
-            s = String.Format("<strong>{0}</strong>", cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag);
-            SetDataTable((int)CKY_k - 1, (int)CKY_k, s);
-
-            ChangeColor((int)CKY_k - 1, -1, (int)CKY_k, id_rule - 1);
-
-            CKY_TABLECELLS = cky_tablecells;
-            if (fskip == true)
-                Next(fskip);
         }
 
         protected void Reset()
@@ -689,6 +630,7 @@ namespace ASP.NET___My_Website.Projects
             CKY_j = 0;
             CKY_k = 0;
             CKY_TABLECELLS = new CKY_TableCell[1,1];
+            PROCESSCHAIN = new List<ProcessChain>();
             //this.Sentence_Text.Value = "";
 
             N_Word = 0;
@@ -722,6 +664,7 @@ namespace ASP.NET___My_Website.Projects
                 Next(true);
                 btnMain_State = "Reset";
                 this.btnPrev.Enabled = true;
+                btnNext.Enabled = false;
             }
             else if(btnMain_State == "Reset")
             {
@@ -742,6 +685,7 @@ namespace ASP.NET___My_Website.Projects
                 btnMain_State = "Skip to Final";
                 this.btnMain.Text = btnMain_State;
             }
+            FinalCell = false;
             Prev();
             btnNext.Enabled = true;
         }
