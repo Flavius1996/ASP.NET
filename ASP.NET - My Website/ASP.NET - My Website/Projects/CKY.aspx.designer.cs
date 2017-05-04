@@ -40,6 +40,15 @@ namespace ASP.NET___My_Website.Projects {
         protected global::System.Web.UI.HtmlControls.HtmlTextArea CNF_Text;
         
         /// <summary>
+        /// btnDefaulSentence control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDefaulSentence;
+        
+        /// <summary>
         /// Sentence_Text control.
         /// </summary>
         /// <remarks>

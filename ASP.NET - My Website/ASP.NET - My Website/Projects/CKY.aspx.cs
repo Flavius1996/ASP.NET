@@ -21,7 +21,7 @@ namespace ASP.NET___My_Website.Projects
         // Color Choose
         private static System.Drawing.Color DefaultCellColor = System.Drawing.Color.White;
         private static System.Drawing.Color HeaderCellColor = System.Drawing.Color.WhiteSmoke;
-        private static System.Drawing.Color CurCellColor = System.Drawing.Color.CadetBlue;
+        private static System.Drawing.Color CurCellColor = System.Drawing.Color.LightBlue;
         private static System.Drawing.Color WriteCellColor = System.Drawing.Color.LightGreen;
         private static System.Drawing.Color UsedRuleColor = System.Drawing.Color.LightGreen;
 
@@ -32,11 +32,12 @@ namespace ASP.NET___My_Website.Projects
         {
             if (!this.IsPostBack)
             {
-                if (Session["FirstTime"] == null)
+                if (ViewState["FirstTime"] == null)
                 {
-                    Session["btnMain_State"] = btnMain_State;
-                    Session["fSkip"] = false;
-                    Session["FirstTime"] = false;
+                    ViewState["btnMain_State"] = btnMain_State;       // btnMain_State;
+                    ViewState["FinalCell"] = false;                   // Touch the final cell
+                    ViewState["fSkip"] = false;                       // flag Skip to Final
+                    ViewState["FirstTime"] = false;                   // First time run this page
                 }
             }
 
@@ -49,15 +50,16 @@ namespace ASP.NET___My_Website.Projects
             CKY_Grid.DataBind();
             CNF_Grid.DataSource = CKY_Global.CNF_GRID_DATATABLE;
             CNF_Grid.DataBind();
+
+            // Hide Header Row
+            if (CNF_Grid.Rows.Count != 0)
+                CNF_Grid.HeaderRow.Visible = false;
+
         }
         protected void Grid_DataBound(object sender, EventArgs e)
         {
             if (CKY_Grid.Rows.Count == 0)
                 return;
-
-            // Hide Header Row
-            if (CNF_Grid.HeaderRow != null)
-                CNF_Grid.HeaderRow.Visible = false;
             CKY_Grid.HeaderRow.Visible = false;
             // Style CKY_Table
             for (int i = 0; i < CKY_Global.N_Word + 1; i++)
@@ -229,11 +231,11 @@ namespace ASP.NET___My_Website.Projects
             //      On this case we use: RestoreColor(i, -1, k, -1)
             if (cell_j != -1)
             {
-                this.CKY_Grid.Rows[cell_i].Cells[cell_j].BackColor = DefaultCellColor;
-                this.CKY_Grid.Rows[cell_j].Cells[cell_k].BackColor = DefaultCellColor;
+                this.CKY_Grid.Rows[cell_i + 1].Cells[cell_j].BackColor = DefaultCellColor;
+                this.CKY_Grid.Rows[cell_j + 1].Cells[cell_k].BackColor = DefaultCellColor;
             }
 
-            this.CKY_Grid.Rows[cell_i].Cells[cell_k].BackColor = DefaultCellColor;
+            this.CKY_Grid.Rows[cell_i + 1].Cells[cell_k].BackColor = DefaultCellColor;
 
             if (rule_id != -1 && rule_id < CKY_Global.CNF_RULES.Count())
                 this.CNF_Grid.Rows[rule_id].Cells[0].BackColor = DefaultCellColor;
@@ -246,34 +248,36 @@ namespace ASP.NET___My_Website.Projects
 
             if (cell_j != -1)
             {
-                this.CKY_Grid.Rows[cell_i].Cells[cell_j].BackColor = CurCellColor;
-                this.CKY_Grid.Rows[cell_j].Cells[cell_k].BackColor = CurCellColor;
+                this.CKY_Grid.Rows[cell_i + 1].Cells[cell_j].BackColor = CurCellColor;
+                this.CKY_Grid.Rows[cell_j + 1].Cells[cell_k].BackColor = CurCellColor;
             }
-            this.CKY_Grid.Rows[cell_i].Cells[cell_k].BackColor = WriteCellColor;
+            this.CKY_Grid.Rows[cell_i + 1].Cells[cell_k].BackColor = WriteCellColor;
             if (rule_id < CKY_Global.CNF_RULES.Count())
                 this.CNF_Grid.Rows[rule_id].Cells[0].BackColor = UsedRuleColor;
         }
         protected void SetDataTable(int i, int j, string temp)
         {
-            CKY_Global.CKY_GRID_DATATABLE.Rows[i].SetField(j, temp);
+            CKY_Global.CKY_GRID_DATATABLE.Rows[i + 1].SetField(j, temp);
         }
         protected void Next(bool fskip = false)
         {
+            string s;
+            int id_rule;
+            string word;
             // First cell
             if (CKY_Global.i == 0 && CKY_Global.j == 0 && CKY_Global.k == 0)    
             {
                 CKY_Global.k = 1;
-                CKY_Global.i = 1;
+                CKY_Global.i = 0;
                 CKY_Global.j = 1;
-                string word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
-                int id_rule;
-                CKY_Global.CKY_TABLECELLS[1, 1].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
-                CKY_Global.CKY_TABLECELLS[1, 1].fTerminal = true;
+                word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
+                CKY_Global.CKY_TABLECELLS[0, 1].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
+                CKY_Global.CKY_TABLECELLS[0, 1].fTerminal = true;
 
-                string s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[1, 1].Tag);
-                SetDataTable(CKY_Global.i, CKY_Global.k, s);
+                s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[0, 1].Tag);
+                SetDataTable(0, 1, s);
 
-                ChangeColor(1, -1, 1, id_rule - 1);
+                ChangeColor(0, -1, 1, id_rule - 1);
 
                 return;
             }
@@ -286,27 +290,37 @@ namespace ASP.NET___My_Website.Projects
             CKY_TableCell OppositeTC;
             int check;
 
-            // End of k => Next k
-            if (i <= 1 && j >= k)
+            // End of k col => Next k
+            if (i <= 0 && j >= k)
             {
                 CKY_Global.k += 1;
-                CKY_Global.i = CKY_Global.k;
-                CKY_Global.j = CKY_Global.k - 1;
-                string word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
-                int id_rule;
-                CKY_Global.CKY_TABLECELLS[CKY_Global.i, CKY_Global.k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
+                CKY_Global.i = CKY_Global.k - 2;
+                CKY_Global.j = CKY_Global.k - 2;
 
-                string s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[CKY_Global.i, CKY_Global.k].Tag);
-                SetDataTable(CKY_Global.i, CKY_Global.k, s);
+                word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
+                CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
 
-                ChangeColor(CKY_Global.i, -1, CKY_Global.k, id_rule - 1);
+                s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag);
+                SetDataTable(CKY_Global.k - 1, CKY_Global.k, s);
 
-                if (fskip == false)
+                ChangeColor(CKY_Global.k - 1, -1, CKY_Global.k, id_rule - 1);
+
+                if (fskip)
+                    Next(fskip);
+                else
                     return;
             }
-            for (int x = i; x > 0; x--)
+            if ((bool)ViewState["FinalCell"] == true)
+                return;
+            if (j == k)
             {
-                for (int y = j; j < k; j++)
+                j = i;
+                i = i - 1;
+            }
+            int x ,y;
+            for (x = i; x >= 0; x--)
+            {
+                for (y = j; y < k; y++)
                 {
                     CurTC = CKY_Global.CKY_TABLECELLS[x, y];
                     OppositeTC = CKY_Global.CKY_TABLECELLS[y, k];
@@ -315,12 +329,24 @@ namespace ASP.NET___My_Website.Projects
                         continue;
                     else
                     {
-                        CKY_Global.CKY_TABLECELLS[x, k].Set(CKY_Global.CNF_RULES[check].Left, false, x, y, y, k);
+                        CKY_Global.CKY_TABLECELLS[x, k].Set(CKY_Global.CNF_RULES[check - 1].Left, false, x, y, y, k);
 
-                        ChangeColor(x, y, k, check);
-                        string s = String.Format("<strong>{0}</strong><br />({1}, {2})<br />({3}, {4})", CKY_Global.CKY_TABLECELLS[x, k].Tag, x, y, y, k);
+                        s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", CKY_Global.CKY_TABLECELLS[x, k].Tag, x, y, y, k);
                         SetDataTable(x, k, s);
 
+                        ChangeColor(x, y, k, check - 1);
+
+                        if (x == 0 && k == CKY_Global.N_Word)
+                        {
+                            ViewState["FinalCell"] = true;
+                            ViewState["btnMain_State"] = 2;
+                            btnMain.Text = "Reset";
+                            btnNext.Enabled = false;
+                            CKY_Global.i = x;
+                            CKY_Global.j = y;
+                            CKY_Global.k = k;
+                            return;
+                        }
                         if (fskip == false)
                         {
                             CKY_Global.i = x;
@@ -330,15 +356,43 @@ namespace ASP.NET___My_Website.Projects
                         }
                         else
                         {
-                            RestoreColor(x, y, k, check);
+                            RestoreColor(x, y, k, check - 1);
+                            CKY_Global.i = x;
+                            CKY_Global.j = y;
+                            CKY_Global.k = k;
+                            Next(fskip);
+                            if ((bool)ViewState["FinalCell"] == true)
+                                return;
                         }
                     }
                 }
+                if (y == k)
+                    j = i;
+                
             }
 
-            //if (fskip == true)
-            //    Next(fskip);
+            CKY_Global.k += 1;
+            CKY_Global.i = CKY_Global.k - 2;
+            CKY_Global.j = CKY_Global.k - 2;
+            if (CKY_Global.k > CKY_Global.N_Word)
+            {
+                ViewState["FinalCell"] = true;
+                ViewState["btnMain_State"] = 2;
+                btnMain.Text = "Reset";
+                btnNext.Enabled = false;
+                this.BindGrid();
+                return;
+            }
+            word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
+            CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
 
+            s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag);
+            SetDataTable(CKY_Global.k - 1, CKY_Global.k, s);
+
+            ChangeColor(CKY_Global.k - 1, -1, CKY_Global.k, id_rule - 1);
+
+            if (fskip == true)
+                Next(fskip);
         }
         protected void Reset()
         {
@@ -351,10 +405,18 @@ namespace ASP.NET___My_Website.Projects
             CKY_Global.CKY_TABLECELLS = new CKY_TableCell[1,1];
             //this.Sentence_Text.Value = "";
             CKY_Global.CKY_GRID_DATATABLE = new DataTable();
+            CKY_Global.CNF_GRID_DATATABLE = new DataTable();
+
+            CKY_Grid.Columns.Clear();
+            CNF_Grid.Columns.Clear();
+
+            ViewState["btnMain_State"] = 0;                   // btnMain_State;
+            ViewState["FinalCell"] = false;                   // Touch the final cell
+            ViewState["fSkip"] = false;                       // flag Skip to Final
         }
         protected void btnMain_Click(object sender, EventArgs e)
         {
-            switch ((int) Session["btnMain_State"])
+            switch ((int) ViewState["btnMain_State"])
             {
                 case 0:     // Start
                     {
@@ -365,13 +427,11 @@ namespace ASP.NET___My_Website.Projects
                         if (check == true)
                         {
                             Next();             // Run Next() for first cell
-                            Session["btnMain_State"] = 1;
+                            ViewState["btnMain_State"] = 1;
                             this.btnMain.Text = "Skip to Final";
 
                             // Enable Next button
                             this.btnNext.Enabled = true;
-
-                            
                         }
                         break;
                     }
@@ -380,14 +440,20 @@ namespace ASP.NET___My_Website.Projects
                         fSkip = true;
                         Next(fSkip);
                         fSkip = false;
-                        Session["btnMain_State"] = 2;
-                        Session["fSkip"] = true;
+                        ViewState["btnMain_State"] = 2;
+                        ViewState["fSkip"] = true;
                         this.btnMain.Text = "Reset";
+                        this.btnPrev.Enabled = true;
                         break;
                     }
-                case 2:     // Skip to Final
+                case 2:     // Reset
                     {
                         Reset();
+                        ViewState["btnMain_State"] = 0;
+                        this.btnMain.Text = "Start";
+                        btnNext.Enabled = false;
+                        btnPrev.Enabled = false;
+                        this.BindGrid();
                         break;
                     }
             }
@@ -396,14 +462,14 @@ namespace ASP.NET___My_Website.Projects
 
         protected void btnPrev_Click(object sender, EventArgs e)
         {
-            //CKY_Table.Rows.Add
-            //CKY_Grid.Rows.Add
+            ViewState["fSkip"] = false;
         }
 
         protected void btnNext_Click(object sender, EventArgs e)
         {
-            fSkip = (bool) Session["fSkip"];
+            fSkip = (bool) ViewState["fSkip"];
             Next(fSkip);
+            btnPrev.Enabled = true;
         }
 
         protected void btnDefaulCNF_Click(object sender, EventArgs e)
@@ -412,6 +478,9 @@ namespace ASP.NET___My_Website.Projects
             CNF_Text.Value = fileContents;
         }
 
-
+        protected void btnDefaulSentence_Click(object sender, EventArgs e)
+        {
+            Sentence_Text.Value = "Nam học bài ở trường";
+        }
     }
 }
