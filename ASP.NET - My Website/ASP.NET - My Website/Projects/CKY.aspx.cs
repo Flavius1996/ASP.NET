@@ -461,7 +461,7 @@ namespace ASP.NET___My_Website.Projects
 
                 word = SENTENCE_WORDS[(int) CKY_k - 1];
                 cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
-
+                cky_tablecells[(int)CKY_k - 1, (int)CKY_k].fTerminal = true;
                 s = String.Format("<strong>{0}</strong>", cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag);
                 SetDataTable((int) CKY_k - 1, (int) CKY_k, s);
 
@@ -498,7 +498,7 @@ namespace ASP.NET___My_Website.Projects
                     else
                     {
                         cky_tablecells[x, k].Set(CNF_RULES[id_rule - 1].Left, false, x, y, y, k);
-
+                        cky_tablecells[x, k].fTerminal = false;
                         s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", cky_tablecells[x, k].Tag, x, y, y, k);
                         SetDataTable(x, k, s);
 
@@ -514,6 +514,7 @@ namespace ASP.NET___My_Website.Projects
                             btnMain_State = "Reset";
                             btnMain.Text = "Reset";
                             btnNext.Enabled = false;
+                            DisplayParseText();
                             CKY_i = x;
                             CKY_j = y;
                             CKY_k = k;
@@ -552,12 +553,13 @@ namespace ASP.NET___My_Website.Projects
                 btnMain_State = "Reset";
                 btnMain.Text = "Reset";
                 btnNext.Enabled = false;
+                DisplayParseText();
                 this.BindGrid();
                 return;
             }
             word = SENTENCE_WORDS[(int) CKY_k - 1];
             cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
-
+            cky_tablecells[(int)CKY_k - 1, (int) CKY_k].fTerminal = true;
             s = String.Format("<strong>{0}</strong>", cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag);
             SetDataTable((int) CKY_k - 1, (int) CKY_k, s);
 
@@ -573,7 +575,7 @@ namespace ASP.NET___My_Website.Projects
                 Next(fskip);
         }
 
-        protected void Prev(bool fskip = false)
+        protected void Prev()
         {
             List<ProcessChain> PC = PROCESSCHAIN;
             CKY_TableCell[,] cky_tablecells = CKY_TABLECELLS;
@@ -621,6 +623,32 @@ namespace ASP.NET___My_Website.Projects
             }
         }
 
+        protected string CKY_Trace(int x, int y, CKY_TableCell[,] TbCells)
+        {
+            if (TbCells[x, y].fTerminal)
+                return String.Format("{0}({1})", TbCells[x, y].Tag, SENTENCE_WORDS[y-1]);
+
+            string left = CKY_Trace(TbCells[x, y].X1, TbCells[x, y].Y1, TbCells);
+            string right = CKY_Trace(TbCells[x, y].X2, TbCells[x, y].Y2, TbCells);
+
+            return String.Format("{0}({1}, {2})", TbCells[x, y].Tag, left, right);
+        }
+        protected void DisplayParseText()
+        {
+            CKY_TableCell[,] TbCells = CKY_TABLECELLS;
+            if (TbCells[0, N_Word].Tag != "")
+            {
+                string ParseText = CKY_Trace(0, N_Word, TbCells);
+
+                var msg = String.Format("<strong>Success!</strong> Parse: {0}", ParseText);
+                ScriptManager.RegisterStartupScript(MainUpdatePanel, MainUpdatePanel.GetType(), "alert", "ShowSuccessAlert('" + msg + "')", true);
+            }
+            else
+            {
+                var msg = String.Format("<strong>Fail!</strong> This is not a Sentence.");
+                ScriptManager.RegisterStartupScript(MainUpdatePanel, MainUpdatePanel.GetType(), "alert", "ShowDangerAlert('" + msg + "')", true);
+            }
+        }
         protected void Reset()
         {
             CNF_RULES = new List<CNF_Rule>();
@@ -663,8 +691,9 @@ namespace ASP.NET___My_Website.Projects
             {
                 Next(true);
                 btnMain_State = "Reset";
-                this.btnPrev.Enabled = true;
+                btnPrev.Enabled = true;
                 btnNext.Enabled = false;
+                DisplayParseText();
             }
             else if(btnMain_State == "Reset")
             {

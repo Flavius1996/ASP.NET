@@ -12,27 +12,6 @@
     <h4>Student: &nbsp <strong>Hoàng Hữu Tín</strong></h4>
     <h4>ID: &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <strong>14520956</strong></h4>
 
-    <%--<script type="text/javascript">
-    window.scrollTo = function( x,y ) 
-    {
-        return true;
-    }
-    </script>--%>
-    <script type="text/javascript">
-    window.onload = function () {
-        var div = document.getElementById("dvScroll");
-        var div_position = document.getElementById("div_position");
-        var position = parseInt('<%=Request.Form["div_position"] %>');
-        if (isNaN(position)) {
-            position = 0;
-        }
-        div.scrollTop = position;
-        div.onscroll = function () {
-            div_position.value = div.scrollTop;
-        };
-    };
-    </script>
-
     <div class="panel panel-primary">
       <div class="panel-heading">
           <strong>Step 1:</strong> Input CNF rules 
