@@ -16,7 +16,7 @@ namespace ASP.NET___My_Website.Projects
             //  0: Start
             //  1: Skip to Final
             //  2: Reset
-        private int btnMain_State = 0;
+        //private int btnMain_State = 0;
 
         // Color Choose
         private static System.Drawing.Color DefaultCellColor = System.Drawing.Color.White;
@@ -24,21 +24,158 @@ namespace ASP.NET___My_Website.Projects
         private static System.Drawing.Color CurCellColor = System.Drawing.Color.LightBlue;
         private static System.Drawing.Color WriteCellColor = System.Drawing.Color.LightGreen;
         private static System.Drawing.Color UsedRuleColor = System.Drawing.Color.LightGreen;
+        public int CKY_i
+        {
+            get
+            {
+                return (int) ViewState["i"];
+            }
+            set
+            {
+                ViewState["i"] = value;
+            }
+        }
+        public int CKY_j
+        {
+            get
+            {
+                return (int) ViewState["j"];
+            }
+            set
+            {
+                ViewState["j"] = value;
+            }
+        }
+        public int CKY_k
+        {
+            get
+            {
+                return (int) ViewState["k"];
+            }
+            set
+            {
+                ViewState["k"] = value;
+            }
+        }
+        public List<string> WORDS
+        {
+            get
+            {
+                return (List<string>)Session["WORDS"];
+            }
+            set
+            {
+                Session["WORDS"] = value;
+            }
+        }
+        public List<string> SENTENCE_WORDS
+        {
+            get
+            {
+                return (List<string>)Session["SENTENCE_WORDS"];
+            }
+            set
+            {
+                Session["SENTENCE_WORDS"] = value;
+            }
+        }
+        public List<CNF_Rule> CNF_RULES
+        {
+            get
+            {
+                return (List<CNF_Rule>)Session["CNF_RULES"];
+            }
+            set
+            {
+                Session["CNF_RULES"] = value;
+            }
+        }
+        public int N_Word
+        {
+            get
+            {
+                return (int) ViewState["N_WORDS"];
+            }
+            set
+            {
+                ViewState["N_WORDS"] = value;
+            }
+        }
+        public CKY_TableCell[,] CKY_TABLECELLS
+        {
+            get
+            {
+                return (CKY_TableCell[,]) Session["CKY_TABLECELLS"];
+            }
+            set
+            {
+                Session["CKY_TABLECELLS"] = value;
+            }
+        }
+        public DataTable CKY_DATATABLE
+        {
+            get
+            {
+                return (DataTable)Session["CKY_DATATABLE"];
+            }
+            set
+            {
+                Session["CKY_DATATABLE"] = value;
+            }
+        }
+        public DataTable CNF_DATATABLE
+        {
+            get
+            {
+                return (DataTable)Session["CNF_DATATABLE"];
+            }
+            set
+            {
+                Session["CNF_DATATABLE"] = value;
+            }
+        }
+        public string btnMain_State
+        {
+            get
+            {
+                return (string)ViewState["btnMain_State"];
+            }
+            set
+            {
+                ViewState["btnMain_State"] = value;
+            }
+        }
+        public bool FinalCell       // Touch FinalCell  => Break Next()
+        {
+            get
+            {
+                return (bool) ViewState["FinalCell"];
+            }
+            set
+            {
+                ViewState["FinalCell"] = value;
+            }
+        }
+        public List<ProcessChain> PROCESSCHAIN       // Touch FirstCell  => Break Prev()
+        {
+            get
+            {
+                return (List<ProcessChain>) Session["PROCESSCHAIN"];
+            }
+            set
+            {
+                Session["PROCESSCHAIN"] = value;
+            }
+        }
 
         // fSkip
-        private bool fSkip = false;
+        //private bool fSkip = false;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!this.IsPostBack)
             {
-                if (ViewState["FirstTime"] == null)
-                {
-                    ViewState["btnMain_State"] = btnMain_State;       // btnMain_State;
-                    ViewState["FinalCell"] = false;                   // Touch the final cell
-                    ViewState["fSkip"] = false;                       // flag Skip to Final
-                    ViewState["FirstTime"] = false;                   // First time run this page
-                }
+                Reset();
             }
 
             this.BindGrid();
@@ -46,9 +183,9 @@ namespace ASP.NET___My_Website.Projects
 
         private void BindGrid()
         {
-            CKY_Grid.DataSource = CKY_Global.CKY_GRID_DATATABLE;
+            CKY_Grid.DataSource = CKY_DATATABLE;
             CKY_Grid.DataBind();
-            CNF_Grid.DataSource = CKY_Global.CNF_GRID_DATATABLE;
+            CNF_Grid.DataSource = CNF_DATATABLE;
             CNF_Grid.DataBind();
 
             // Hide Header Row
@@ -62,9 +199,9 @@ namespace ASP.NET___My_Website.Projects
                 return;
             CKY_Grid.HeaderRow.Visible = false;
             // Style CKY_Table
-            for (int i = 0; i < CKY_Global.N_Word + 1; i++)
+            for (int i = 0; i < N_Word + 1; i++)
             {
-                for (int j = 0; j < CKY_Global.N_Word + 1; j++)
+                for (int j = 0; j < N_Word + 1; j++)
                 {
                     // Align Center
                     CKY_Grid.Rows[i].Cells[j].HorizontalAlign = HorizontalAlign.Center;
@@ -80,10 +217,10 @@ namespace ASP.NET___My_Website.Projects
         }
         protected void Display_CNF_Table(List<CNF_Rule> Rules)
         {
-            CKY_Global.CNF_GRID_DATATABLE.Columns.Add();
+            DataTable CNF_GRID_DATATABLE = new DataTable();
+            CNF_GRID_DATATABLE.Columns.Add();
             foreach (CNF_Rule r in Rules)
             {
-
                 String s;
                 if (r.Left == null || r.Right[0] == null)
                     s = String.Format("&nbsp&nbsp<strong>{0}.</strong>&nbsp&nbsp&nbsp&nbspWrong format", r.ID, r.Left, r.Right[0]);
@@ -102,99 +239,110 @@ namespace ASP.NET___My_Website.Projects
                 //tCell.Text = s;
                 //tRow.Cells.Add(tCell);
 
-                CKY_Global.CNF_GRID_DATATABLE.Rows.Add(s);
+                CNF_GRID_DATATABLE.Rows.Add(s);
                 //CNF_Table.Rows.Add(tRow);
             }
 
             BoundField bfield = new BoundField();
-            bfield.HeaderText = CKY_Global.CNF_GRID_DATATABLE.Columns[0].ColumnName;
-            bfield.DataField = CKY_Global.CNF_GRID_DATATABLE.Columns[0].ColumnName;
+            bfield.HeaderText = CNF_GRID_DATATABLE.Columns[0].ColumnName;
+            bfield.DataField = CNF_GRID_DATATABLE.Columns[0].ColumnName;
             bfield.HtmlEncode = false;
             CNF_Grid.Columns.Add(bfield);
 
+            CNF_DATATABLE = CNF_GRID_DATATABLE;
         }
         protected void Display_CKY_Table(string[] words)
         {
-            CKY_Global.N_Word = words.Length;
+            DataTable CKY_GRID_DATATABLE = new DataTable();
+            N_Word = words.Length;
+
             string s;
             int i, j;
 
-            for (i = 0; i < CKY_Global.N_Word + 1; i++)
+            for (i = 0; i < N_Word + 1; i++)
             {
-                CKY_Global.CKY_GRID_DATATABLE.Rows.Add();
-                CKY_Global.CKY_GRID_DATATABLE.Columns.Add();
+                CKY_GRID_DATATABLE.Rows.Add();
+                CKY_GRID_DATATABLE.Columns.Add();
             }
 
             // Create N+1 x N+1 table
-            for (i = 0; i < CKY_Global.N_Word + 1; i++)
+            for (i = 0; i < N_Word + 1; i++)
             {
                 //DataRow TempRow2 = new DataRow();
                 TableRow TempRow = new TableRow();
-                for (j = 0; j < CKY_Global.N_Word + 1; j++)
+                for (j = 0; j < N_Word + 1; j++)
                 {
                     TableCell TempCell = new TableCell();
                     // Header row
                     if (i == 0 && j > 0)
                     {
                         s = String.Format("<strong>{0}</strong><br />{1}", j, words[j - 1]);
-                        CKY_Global.CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
+                        CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
                     }
                     // (0, 0) cell
                     if (i == 0 && j == 0)
                     {
                         s = "<strong>0</strong>";
-                        CKY_Global.CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
+                        CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
                     }
                     // First Vertical row
                     if (i > 0 && j == 0)
                     {
                         s = String.Format("<strong>{0}</strong>", i - 1);
-                        CKY_Global.CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
+                        CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
                     }
 
                     // Other Cells
                     if (i > 0 && j > 0)
                     {
                         s = "";
-                        CKY_Global.CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
+                        CKY_GRID_DATATABLE.Rows[i].SetField(j, s);
                     }
                 }
             }
 
-            for (int k = 0; k < CKY_Global.N_Word + 1; k++)
+            for (int k = 0; k < N_Word + 1; k++)
             {
                 BoundField bfield = new BoundField();
-                bfield.HeaderText = CKY_Global.CKY_GRID_DATATABLE.Columns[k].ColumnName;
-                bfield.DataField = CKY_Global.CKY_GRID_DATATABLE.Columns[k].ColumnName;
+                bfield.HeaderText = CKY_GRID_DATATABLE.Columns[k].ColumnName;
+                bfield.DataField = CKY_GRID_DATATABLE.Columns[k].ColumnName;
                 bfield.HtmlEncode = false;
                 CKY_Grid.Columns.Add(bfield);
             }
+
+            CKY_DATATABLE = CKY_GRID_DATATABLE;
+
             this.BindGrid();
 
+
             // Create CKY_Global.CKY_TABLECELLS for processing Algorithm and Tracing
-            CKY_Global.CKY_TABLECELLS = new CKY_TableCell[CKY_Global.N_Word + 1, CKY_Global.N_Word + 1];
-            for (i = 0; i < CKY_Global.N_Word + 1; i++)
-                for (j = 0; j < CKY_Global.N_Word + 1; j++)
-                    CKY_Global.CKY_TABLECELLS[i, j] = new CKY_TableCell();
+            CKY_TableCell[,] cky_Tablecells = new CKY_TableCell[N_Word + 1, N_Word + 1];
+            for (i = 0; i < N_Word + 1; i++)
+                for (j = 0; j < N_Word + 1; j++)
+                    cky_Tablecells[i, j] = new CKY_TableCell();
+            this.CKY_TABLECELLS = cky_Tablecells;
         }
         protected bool Start()
         {
+            List<CNF_Rule> cnf_rules = new List<CNF_Rule>();
+            List<string> words = new List<string>();
+            List<string> sentence_words = new List<string>();
+
             string CNF_text = CNF_Text.Value;
             string sentence = Sentence_Text.Value;
 
             string[] lines = CNF_text.Split(new string[] { "\n" }, StringSplitOptions.None);
 
             //string[] lines = CNF_text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            for (int i = 0; i <lines.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
-                CNF_Rule rule = new CNF_Rule(i + 1, lines[i]);
-                CKY_Global.CNF_RULES.Add(rule);
+                CNF_Rule rule = new CNF_Rule(i + 1, lines[i], words);
+                cnf_rules.Add(rule);
             }
+            Display_CNF_Table(cnf_rules);
 
-            Display_CNF_Table(CKY_Global.CNF_RULES);
-
-            string[] words = sentence.Split(new char[] { ' ', ',', '.' }, StringSplitOptions.RemoveEmptyEntries);
-            if (words.Count() == 0)
+            string[] wordsinSentence = sentence.Split(new char[] { ' ', ',', '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (wordsinSentence.Count() == 0)
             {
                 var msg = "<strong>Warning!</strong> The Sentence is empty.";
 
@@ -204,11 +352,12 @@ namespace ASP.NET___My_Website.Projects
 
             List<string> Outlier_words = new List<string>();
             // Check if error not have word in Global CNF WORDS
-            foreach (string w in words)
-                if (CKY_Global.WORDS.IndexOf(w) == -1)
+            foreach (string w in wordsinSentence)
+                if (words.IndexOf(w) == -1)
                     Outlier_words.Add(w);
                 else
-                    CKY_Global.SENTENCE_WORDS.Add(w);
+                    sentence_words.Add(w);
+
             if (Outlier_words.Count() > 0)
             {
                 var str_words = String.Join(", ", Outlier_words.ToArray());
@@ -219,7 +368,12 @@ namespace ASP.NET___My_Website.Projects
                 //Page.ClientScript.RegisterStartupScript(this.GetType(), "alert", "ShowWarningAlert('" + msg + "')", true);
                 return false;
             }
-            Display_CKY_Table(words);
+
+            this.CNF_RULES = cnf_rules;
+            this.WORDS = words;
+            this.SENTENCE_WORDS = sentence_words;
+            
+            Display_CKY_Table(wordsinSentence);
 
             return true;
         }
@@ -237,7 +391,7 @@ namespace ASP.NET___My_Website.Projects
 
             this.CKY_Grid.Rows[cell_i + 1].Cells[cell_k].BackColor = DefaultCellColor;
 
-            if (rule_id != -1 && rule_id < CKY_Global.CNF_RULES.Count())
+            if (rule_id != -1 && rule_id < CNF_RULES.Count())
                 this.CNF_Grid.Rows[rule_id].Cells[0].BackColor = DefaultCellColor;
         }
         protected void ChangeColor(int cell_i, int cell_j, int cell_k, int rule_id)
@@ -252,29 +406,33 @@ namespace ASP.NET___My_Website.Projects
                 this.CKY_Grid.Rows[cell_j + 1].Cells[cell_k].BackColor = CurCellColor;
             }
             this.CKY_Grid.Rows[cell_i + 1].Cells[cell_k].BackColor = WriteCellColor;
-            if (rule_id < CKY_Global.CNF_RULES.Count())
+            if (rule_id < CNF_RULES.Count())
                 this.CNF_Grid.Rows[rule_id].Cells[0].BackColor = UsedRuleColor;
         }
         protected void SetDataTable(int i, int j, string temp)
         {
-            CKY_Global.CKY_GRID_DATATABLE.Rows[i + 1].SetField(j, temp);
+            DataTable CKY_GRID_DATATABLE = CKY_DATATABLE;
+            CKY_GRID_DATATABLE.Rows[i + 1].SetField(j, temp);
+            CKY_DATATABLE = CKY_GRID_DATATABLE;
         }
         protected void Next(bool fskip = false)
         {
             string s;
             int id_rule;
             string word;
+            CKY_TableCell[,] cky_tablecells = CKY_TABLECELLS;
             // First cell
-            if (CKY_Global.i == 0 && CKY_Global.j == 0 && CKY_Global.k == 0)    
+            if ((int) CKY_i == 0 && (int) CKY_j == 0 && (int) CKY_k == 0)    
             {
-                CKY_Global.k = 1;
-                CKY_Global.i = 0;
-                CKY_Global.j = 1;
-                word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
-                CKY_Global.CKY_TABLECELLS[0, 1].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
-                CKY_Global.CKY_TABLECELLS[0, 1].fTerminal = true;
+                CKY_k = 1;
+                CKY_i = 0;
+                CKY_j = 1;
+                word = SENTENCE_WORDS[(int) CKY_k - 1];
+                cky_tablecells[0, 1].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
+                cky_tablecells[0, 1].fTerminal = true;
 
-                s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[0, 1].Tag);
+                s = String.Format("<strong>{0}</strong>", cky_tablecells[0, 1].Tag);
+                CKY_TABLECELLS = cky_tablecells;
                 SetDataTable(0, 1, s);
 
                 ChangeColor(0, -1, 1, id_rule - 1);
@@ -282,9 +440,9 @@ namespace ASP.NET___My_Website.Projects
                 return;
             }
 
-            int i = CKY_Global.i;
-            int j = CKY_Global.j + 1;       // Get next j
-            int k = CKY_Global.k;
+            int i = (int) CKY_i;
+            int j = (int) CKY_j + 1;       // Get next j
+            int k = (int) CKY_k;
             // TableCell (i, k) = (i, j) + (j, k)  
             CKY_TableCell CurTC;
             CKY_TableCell OppositeTC;
@@ -293,24 +451,28 @@ namespace ASP.NET___My_Website.Projects
             // End of k col => Next k
             if (i <= 0 && j >= k)
             {
-                CKY_Global.k += 1;
-                CKY_Global.i = CKY_Global.k - 2;
-                CKY_Global.j = CKY_Global.k - 2;
+                CKY_k = (int) CKY_k + 1;
+                CKY_i = (int) CKY_k - 2;
+                CKY_j = (int) CKY_k - 2;
 
-                word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
-                CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
+                word = SENTENCE_WORDS[(int) CKY_k - 1];
+                cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
 
-                s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag);
-                SetDataTable(CKY_Global.k - 1, CKY_Global.k, s);
+                s = String.Format("<strong>{0}</strong>", cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag);
+                SetDataTable((int) CKY_k - 1, (int) CKY_k, s);
 
-                ChangeColor(CKY_Global.k - 1, -1, CKY_Global.k, id_rule - 1);
+                ChangeColor((int) CKY_k - 1, -1, (int) CKY_k, id_rule - 1);
 
+                CKY_TABLECELLS = cky_tablecells;
+
+                //List<ProcessChain> PC = PROCESSCHAIN;
+                //PC.Add
                 if (fskip)
                     Next(fskip);
                 else
                     return;
             }
-            if ((bool)ViewState["FinalCell"] == true)
+            if (FinalCell == true)
                 return;
             if (j == k)
             {
@@ -322,46 +484,47 @@ namespace ASP.NET___My_Website.Projects
             {
                 for (y = j; y < k; y++)
                 {
-                    CurTC = CKY_Global.CKY_TABLECELLS[x, y];
-                    OppositeTC = CKY_Global.CKY_TABLECELLS[y, k];
-                    check = CKY_TableCell.CheckMerge(CurTC, OppositeTC);
+                    CurTC = cky_tablecells[x, y];
+                    OppositeTC = cky_tablecells[y, k];
+                    check = CKY_TableCell.CheckMerge(CurTC, OppositeTC, CNF_RULES);
                     if (check == -1)
                         continue;
                     else
                     {
-                        CKY_Global.CKY_TABLECELLS[x, k].Set(CKY_Global.CNF_RULES[check - 1].Left, false, x, y, y, k);
+                        cky_tablecells[x, k].Set(CNF_RULES[check - 1].Left, false, x, y, y, k);
 
-                        s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", CKY_Global.CKY_TABLECELLS[x, k].Tag, x, y, y, k);
+                        s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", cky_tablecells[x, k].Tag, x, y, y, k);
                         SetDataTable(x, k, s);
 
                         ChangeColor(x, y, k, check - 1);
 
-                        if (x == 0 && k == CKY_Global.N_Word)
+                        CKY_TABLECELLS = cky_tablecells;
+                        if (x == 0 && k == N_Word)
                         {
-                            ViewState["FinalCell"] = true;
-                            ViewState["btnMain_State"] = 2;
+                            FinalCell = true;
+                            btnMain_State = "Reset";
                             btnMain.Text = "Reset";
                             btnNext.Enabled = false;
-                            CKY_Global.i = x;
-                            CKY_Global.j = y;
-                            CKY_Global.k = k;
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
                             return;
                         }
                         if (fskip == false)
                         {
-                            CKY_Global.i = x;
-                            CKY_Global.j = y;
-                            CKY_Global.k = k;
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
                             return;
                         }
                         else
                         {
-                            RestoreColor(x, y, k, check - 1);
-                            CKY_Global.i = x;
-                            CKY_Global.j = y;
-                            CKY_Global.k = k;
+                            //RestoreColor(x, y, k, check - 1);
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
                             Next(fskip);
-                            if ((bool)ViewState["FinalCell"] == true)
+                            if (FinalCell == true)
                                 return;
                         }
                     }
@@ -371,104 +534,221 @@ namespace ASP.NET___My_Website.Projects
                 
             }
 
-            CKY_Global.k += 1;
-            CKY_Global.i = CKY_Global.k - 2;
-            CKY_Global.j = CKY_Global.k - 2;
-            if (CKY_Global.k > CKY_Global.N_Word)
+            CKY_k = (int) CKY_k + 1;
+            CKY_i = (int) CKY_k - 2;
+            CKY_j = (int) CKY_k - 2;
+            if ((int) CKY_k > N_Word)
             {
-                ViewState["FinalCell"] = true;
-                ViewState["btnMain_State"] = 2;
+                FinalCell = true;
+                btnMain_State = "Reset";
                 btnMain.Text = "Reset";
                 btnNext.Enabled = false;
                 this.BindGrid();
                 return;
             }
-            word = CKY_Global.SENTENCE_WORDS[CKY_Global.k - 1];
-            CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule);
+            word = SENTENCE_WORDS[(int) CKY_k - 1];
+            cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
 
-            s = String.Format("<strong>{0}</strong>", CKY_Global.CKY_TABLECELLS[CKY_Global.k - 1, CKY_Global.k].Tag);
-            SetDataTable(CKY_Global.k - 1, CKY_Global.k, s);
+            s = String.Format("<strong>{0}</strong>", cky_tablecells[(int) CKY_k - 1, (int) CKY_k].Tag);
+            SetDataTable((int) CKY_k - 1, (int) CKY_k, s);
 
-            ChangeColor(CKY_Global.k - 1, -1, CKY_Global.k, id_rule - 1);
+            ChangeColor((int) CKY_k - 1, -1, (int) CKY_k, id_rule - 1);
 
+            CKY_TABLECELLS = cky_tablecells;
             if (fskip == true)
                 Next(fskip);
         }
+
+        protected void Prev(bool fskip = false)
+        {
+            string s;
+            int id_rule;
+            string word;
+            CKY_TableCell[,] cky_tablecells = CKY_TABLECELLS;
+
+            int i = (int) CKY_i;
+            int j = (int) CKY_j - 1;       // Get next j
+            int k = (int) CKY_k;
+            // TableCell (i, k) = (i, j) + (j, k)  
+            CKY_TableCell CurTC;
+            CKY_TableCell OppositeTC;
+            int check;
+
+            // End of k col => Next k
+            if (i >= CKY_k - 2 && j <= i)
+            {
+                CKY_k = (int)CKY_k - 1;
+                CKY_i = (int)CKY_k - 2;
+                CKY_j = (int)CKY_k - 2;
+
+                word = SENTENCE_WORDS[(int)CKY_k - 1];
+                cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
+
+                s = String.Format("<strong>{0}</strong>", cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag);
+                SetDataTable((int)CKY_k - 1, (int)CKY_k, s);
+
+                ChangeColor((int)CKY_k - 1, -1, (int)CKY_k, id_rule - 1);
+
+                CKY_TABLECELLS = cky_tablecells;
+
+                return;
+            }
+            if (FinalCell == true)
+                return;
+            if (j == k)
+            {
+                j = i;
+                i = i - 1;
+            }
+            int x, y;
+            for (x = i; x >= 0; x--)
+            {
+                for (y = j; y < k; y++)
+                {
+                    CurTC = cky_tablecells[x, y];
+                    OppositeTC = cky_tablecells[y, k];
+                    check = CKY_TableCell.CheckMerge(CurTC, OppositeTC, CNF_RULES);
+                    if (check == -1)
+                        continue;
+                    else
+                    {
+                        cky_tablecells[x, k].Set(CNF_RULES[check - 1].Left, false, x, y, y, k);
+
+                        s = String.Format("<strong>{0}</strong><br />({1}, {2}) + ({3}, {4})", cky_tablecells[x, k].Tag, x, y, y, k);
+                        SetDataTable(x, k, s);
+
+                        ChangeColor(x, y, k, check - 1);
+
+                        CKY_TABLECELLS = cky_tablecells;
+                        if (x == 0 && k == N_Word)
+                        {
+                            FinalCell = true;
+                            btnMain_State = "Reset";
+                            btnMain.Text = "Reset";
+                            btnNext.Enabled = false;
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
+                            return;
+                        }
+                        if (fskip == false)
+                        {
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
+                            return;
+                        }
+                        else
+                        {
+                            //RestoreColor(x, y, k, check - 1);
+                            CKY_i = x;
+                            CKY_j = y;
+                            CKY_k = k;
+                            Next(fskip);
+                            if (FinalCell == true)
+                                return;
+                        }
+                    }
+                }
+                if (y == k)
+                    j = i;
+
+            }
+
+            CKY_k = (int)CKY_k + 1;
+            CKY_i = (int)CKY_k - 2;
+            CKY_j = (int)CKY_k - 2;
+            if ((int)CKY_k > N_Word)
+            {
+                FinalCell = true;
+                btnMain_State = "Reset";
+                btnMain.Text = "Reset";
+                btnNext.Enabled = false;
+                this.BindGrid();
+                return;
+            }
+            word = SENTENCE_WORDS[(int)CKY_k - 1];
+            cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag = CKY_TableCell.GetTagofWord(word, out id_rule, CNF_RULES);
+
+            s = String.Format("<strong>{0}</strong>", cky_tablecells[(int)CKY_k - 1, (int)CKY_k].Tag);
+            SetDataTable((int)CKY_k - 1, (int)CKY_k, s);
+
+            ChangeColor((int)CKY_k - 1, -1, (int)CKY_k, id_rule - 1);
+
+            CKY_TABLECELLS = cky_tablecells;
+            if (fskip == true)
+                Next(fskip);
+        }
+
         protected void Reset()
         {
-            CKY_Global.CNF_RULES.Clear();
-            CKY_Global.WORDS.Clear();
-            CKY_Global.SENTENCE_WORDS.Clear();
-            CKY_Global.i = 0;
-            CKY_Global.j = 0;
-            CKY_Global.k = 0;
-            CKY_Global.CKY_TABLECELLS = new CKY_TableCell[1,1];
+            CNF_RULES = new List<CNF_Rule>();
+            WORDS = new List<string>();
+            SENTENCE_WORDS = new List<string>();
+            CKY_i = 0;
+            CKY_j = 0;
+            CKY_k = 0;
+            CKY_TABLECELLS = new CKY_TableCell[1,1];
             //this.Sentence_Text.Value = "";
-            CKY_Global.CKY_GRID_DATATABLE = new DataTable();
-            CKY_Global.CNF_GRID_DATATABLE = new DataTable();
 
+            N_Word = 0;
             CKY_Grid.Columns.Clear();
             CNF_Grid.Columns.Clear();
 
-            ViewState["btnMain_State"] = 0;                   // btnMain_State;
-            ViewState["FinalCell"] = false;                   // Touch the final cell
-            ViewState["fSkip"] = false;                       // flag Skip to Final
+            CKY_DATATABLE = new DataTable();
+            CNF_DATATABLE = new DataTable();
+            btnMain_State = "Start";                   // btnMain_State;
+            FinalCell = false;                   // Touch the final cell
         }
         protected void btnMain_Click(object sender, EventArgs e)
         {
-            switch ((int) ViewState["btnMain_State"])
+            if (btnMain_State== "Start")
             {
-                case 0:     // Start
-                    {
-                        // Reset before Start
-                        Reset();
+                // Reset before Start
+                Reset();
 
-                        bool check = Start();
-                        if (check == true)
-                        {
-                            Next();             // Run Next() for first cell
-                            ViewState["btnMain_State"] = 1;
-                            this.btnMain.Text = "Skip to Final";
+                bool check = Start();
+                if (check == true)
+                {
+                    Next();             // Run Next() for first cell
+                    btnMain_State = "Skip to Final";
 
-                            // Enable Next button
-                            this.btnNext.Enabled = true;
-                        }
-                        break;
-                    }
-                case 1:     // Skip to Final
-                    {
-                        fSkip = true;
-                        Next(fSkip);
-                        fSkip = false;
-                        ViewState["btnMain_State"] = 2;
-                        ViewState["fSkip"] = true;
-                        this.btnMain.Text = "Reset";
-                        this.btnPrev.Enabled = true;
-                        break;
-                    }
-                case 2:     // Reset
-                    {
-                        Reset();
-                        ViewState["btnMain_State"] = 0;
-                        this.btnMain.Text = "Start";
-                        btnNext.Enabled = false;
-                        btnPrev.Enabled = false;
-                        this.BindGrid();
-                        break;
-                    }
+                    // Enable Next button
+                    this.btnNext.Enabled = true;
+                }
             }
- 
+            else if (btnMain_State == "Skip to Final")
+            {
+                Next(true);
+                btnMain_State = "Reset";
+                this.btnPrev.Enabled = true;
+            }
+            else if(btnMain_State == "Reset")
+            {
+                Reset();
+                btnMain_State = "Start";
+                btnNext.Enabled = false;
+                btnPrev.Enabled = false;
+                this.BindGrid();
+            }
+
+            this.btnMain.Text = btnMain_State;
         }
 
         protected void btnPrev_Click(object sender, EventArgs e)
         {
-            ViewState["fSkip"] = false;
+            if (btnMain_State == "Reset")
+            {
+                btnMain_State = "Skip to Final";
+                this.btnMain.Text = btnMain_State;
+            }
+            Prev();
+            btnNext.Enabled = true;
         }
 
         protected void btnNext_Click(object sender, EventArgs e)
         {
-            fSkip = (bool) ViewState["fSkip"];
-            Next(fSkip);
+            Next();
             btnPrev.Enabled = true;
         }
 

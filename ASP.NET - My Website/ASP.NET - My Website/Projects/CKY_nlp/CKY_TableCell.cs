@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace ASP.NET___My_Website.Projects.CKY_nlp
 {
@@ -50,13 +52,13 @@ namespace ASP.NET___My_Website.Projects.CKY_nlp
         /// Return: <ID of rule> can merge 2 TableCell
         ///         -1 if can't merge
         /// </summary>
-        public static int CheckMerge(CKY_TableCell TC1, CKY_TableCell TC2)
+        public static int CheckMerge(CKY_TableCell TC1, CKY_TableCell TC2, List<CNF_Rule> CNF_RULES)
         {
             // Not asigned
             if (TC1.Tag == "" || TC2.Tag == "")
                 return -1;
 
-            foreach (CNF_Rule r in CKY_Global.CNF_RULES)
+            foreach (CNF_Rule r in CNF_RULES)
             {
                 if (r.fTerminal == false) // Rule must be a non-terminal
                     if (r.Right[0] == TC1.Tag && r.Right[1] == TC2.Tag)
@@ -64,9 +66,9 @@ namespace ASP.NET___My_Website.Projects.CKY_nlp
             }
             return -1;
         }
-        public static string GetTagofWord(string word, out int id)
+        public static string GetTagofWord(string word, out int id, List<CNF_Rule> CNF_RULES)
         {
-            foreach (CNF_Rule r in CKY_Global.CNF_RULES)
+            foreach (CNF_Rule r in CNF_RULES)
                 if (r.fTerminal)
                     if (r.Right[0] == word)
                     {
